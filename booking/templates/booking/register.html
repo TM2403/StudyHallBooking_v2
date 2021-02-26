@@ -1,0 +1,124 @@
+{% extends 'booking/base.html' %}
+
+{% block title %}
+    {% if type == 'check_in' %}
+        入室
+    {% else %}
+        退室
+    {% endif %}
+{% endblock %}  
+
+{% block head %}{% endblock %}
+    
+{% block content %}
+<div class="card border-info">
+    <div class="card-header">
+        <h2 class="card-title text-info">
+        {% if type == 'check_in' %}
+        入室手続き / Check-in
+        {% else %}
+        退室手続き / Check-out
+        {% endif%}
+        </h2>
+    </div>
+    {% if type == 'check_in' %}
+        {% if step == 1 %}   
+            <div class="card-body">
+            <h4 class="text-center">図書カードをスキャンするか学籍番号を入力してください。<br/>Scan your library card or enter your student ID.</h4>
+                <br/>
+                <form method="POST" class="form" name="studentidform" action="{% url 'check_in' 1 %}">
+                {% csrf_token %}
+                    <h4 class="text-center">学籍番号/Student ID:</h4> 
+                    <br/>
+                    {% for error in form.student_id.errors%}
+                        <p class="text-center text-danger">{{ error }}</p>
+                    {% endfor %}
+                    {{ form.student_id }}
+                    <br/>
+                </form>
+                <div class="buttons">
+                    <button class="btn btn-secondary" onclick="location.href='{% url 'index' %}'" style="width: 20%; ">戻る<br/>back</button>
+                    <button class="btn btn-warning" onclick="location.href='{% url 'check_in' 3 %}'" style="width: 25%; ">教職員・ゲストの場合<br/>For Teachers and Guests</button>
+                    <button class="btn btn-success" onclick="document.studentidform.submit()" style="width: 25%; ">次へ<br/>Continue</button>
+                </div>  
+            </div>
+
+        {% elif step == 2 %}
+            <div class="card-body">
+                <h4 class="text-center">アカウント情報を確認してください。<br/>Check your account info.</h4>
+                <br/>
+                <table class="table text-center">
+                    <tr><td style="width: 50%">学籍番号<br/>Student ID</td><td style="width: 50%">{{ student.student_id }}</td></tr>
+                    <tr><td>氏名<br/>Full Name</td><td>{{ student.full_name }}</td></tr>
+                    <tr><td>学年/クラス<br/>Homeroom class</td><td>{{ student.full_hr_class }}</td></tr>
+                    <tr><td>出席番号<br/>Student ID</td><td>{{ student.student_num }}</td></tr>
+                </table>
+                <div class="buttons">
+                    <button class="btn btn-secondary" onclick="location.href='{% url 'check_in' 1 %}'"  style="width: 20%; ">戻る<br/>back</button>
+                    <button class="btn btn-warning" onclick="location.href='{% url 'student_info' 'edit' %}'" style="width: 25%; ">登録情報を変更する<br/>Update Personal Info.</button>
+                    <button class="btn btn-success" onclick="location.href='{% url 'check_in' 3 %}'" style="width: 25%; ">次へ<br/>Continue</button>
+                </div>  
+            </div>
+        {% elif step == 3 %}
+            <div class="card-body">
+                <h4 class="text-center">インターネットは利用しますか？<br/>Are you going to use internet?</h4>
+                <br/>
+                <div class="buttons">
+                    <button class="btn btn-secondary" style="width: 30%" onclick="location.href='{% url 'check_in' 2 %}'" >戻る<br/>back</button>                 
+                    <button class="btn btn-success combined-button-left" style="width: 15%" onclick="location.href='{% url 'internet' 1 %}'" >利用します<br/>Yes</button>
+                    <button class="btn btn-danger combined-button-right" style="width: 15%" onclick="location.href='{% url 'internet' 0 %}'" >利用しません<br/>No</button>
+                </div>
+            </div>
+        {% elif step == 4 %}
+            <div class="card-body">
+            <h4 class="text-center">座席を選択してください。<br/>Pick your seat.</h4>
+            <p class="legend">
+                <span class="text-success">緑</span>: 空席　<span class="text-danger">赤</span>: 使用中　<span class="text-secondary">グレー</span>: 使用不可
+                <br/>
+                <span class="text-success">Green</span>: Vacant　<span class="text-danger">Red</span>: Used　<span class="text-secondary">Grey</span>: Unavailable
+            </p>
+                    {% with seatmap_attribute as seatmap_attribute %}
+                    {% with type as type %}
+                        {% include "booking/seatmap.html" %}
+                    {% endwith %} 
+                    {% endwith %} 
+                <div class="buttons">
+                    <button class="btn btn-secondary" onclick="location.href='{% url 'check_in' 3 %}'" >戻る<br/>back</button>
+                </div> 
+            </div>
+        {% endif %}
+    {% elif type == 'check_out' %}
+        <div class="card-body">
+            <h4 class="text-center">図書カードをスキャンするか学籍番号を入力してください。<br/>Scan your library card or enter your student ID.</h4>
+            <br/>
+            <form method="POST" class="form" name="studentidform" action="{% url 'check_out' %}">
+            {% csrf_token %}
+                <h4 class="text-center">学籍番号/Student ID:</h4> 
+                <br/>
+                {% for error in form.student_id.errors%}
+                    <p class="text-center text-danger">{{ error }}</p>
+                {% endfor %}
+                {{ form.student_id }}
+                <br/>
+            </form>
+            <div class="buttons">
+                <button class="btn btn-secondary" onclick="location.href='{% url 'index' %}'" style="width: 20%;">戻る<br/>back</button>
+                <button class="btn btn-warning" onclick="location.href='{% url 'check_out_guest' %}'" style="width: 25%;">教職員・ゲストの場合<br/>For Teachers and Guests</button>                
+                <button class="btn btn-danger" onclick="document.studentidform.submit()" style="width: 20%;">退室<br/>Check-out</button>
+            </div>  
+        </div>
+    {% else %}
+        <div class="card-body">
+            <h4 class="text-center">座っていた座席を選択してください。<br/>Pick the seat you were sitting.</h4>
+                    {% with seatmap_attribute as seatmap_attribute %}
+                    {% with type as type %}
+                        {% include "booking/seatmap.html" %}
+                    {% endwith %} 
+                    {% endwith %} 
+                <div class="buttons">
+                    <button class="btn btn-secondary" onclick="location.href='{% url 'check_out' %}'" >戻る<br/>back</button>
+                </div> 
+            </div>
+    {% endif %}
+</div>
+{% endblock %}

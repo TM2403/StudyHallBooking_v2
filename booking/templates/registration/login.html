@@ -1,0 +1,24 @@
+{% extends 'booking/base.html' %}
+{% load static %}
+
+{% block title %}管理者ログイン{% endblock %}  
+
+{% block content %}
+<div class="card border-primary" id="login-card">
+    <img src="{% static 'images/logo.png' %}" id="logo">
+    <br/>
+    <form method="POST" id="login-form">
+        {% csrf_token %}
+        {% for field, errors in form.errors.items %}
+            {% for error in errors %}
+                <p class="text-center text-danger">{{ error }}</p>
+            {% endfor %}
+        {% endfor %}<br/>
+        {{ form.username }}<br/>
+        {{ form.password }}
+        <br/>
+        <input type="submit" class="btn btn-primary w-50" value="ログイン"/>
+    </form>
+    <br/>
+</div>
+{% endblock %}

@@ -1,0 +1,211 @@
+<table id="seatMap">
+    <tr>
+        <td {{ seatmap_attribute.52|safe }} >52</td>
+        <td {{ seatmap_attribute.49|safe }} >49</td>
+        <td class="empty" rowspan="3"></td>
+        <td {{ seatmap_attribute.40|safe }} >40</td>
+        <td {{ seatmap_attribute.37|safe }} >37</td>
+        <td class="empty" rowspan="3"></td>
+        <td {{ seatmap_attribute.28|safe }} >28</td>
+        <td {{ seatmap_attribute.25|safe }} >25</td>
+        <td class="empty" rowspan="3"></td>
+        <td {{ seatmap_attribute.16|safe }} >16</td>
+        <td {{ seatmap_attribute.13|safe }} >13</td>
+        <td class="empty" rowspan="3"></td>
+        <td {{ seatmap_attribute.4|safe }} >4</td>
+        <td {{ seatmap_attribute.1|safe }} >1</td>
+    </tr>
+    <tr>
+        <td {{ seatmap_attribute.53|safe }} >53</td>
+        <td {{ seatmap_attribute.50|safe }} >50</td>
+        <td {{ seatmap_attribute.41|safe }} >41</td>
+        <td {{ seatmap_attribute.38|safe }} >38</td>
+        <td {{ seatmap_attribute.29|safe }} >29</td>
+        <td {{ seatmap_attribute.26|safe }} >26</td>
+        <td {{ seatmap_attribute.17|safe }} >17</td>
+        <td {{ seatmap_attribute.14|safe }} >14</td>
+        <td {{ seatmap_attribute.5|safe }} >5</td>
+        <td {{ seatmap_attribute.2|safe }} >2</td>
+    </tr>
+    <tr>
+        <td {{ seatmap_attribute.54|safe }} >54</td>
+        <td {{ seatmap_attribute.51|safe }} >51</td>
+        <td {{ seatmap_attribute.42|safe }} >42</td>
+        <td {{ seatmap_attribute.39|safe }} >39</td>
+        <td {{ seatmap_attribute.30|safe }} >30</td>
+        <td {{ seatmap_attribute.27|safe }} >27</td>
+        <td {{ seatmap_attribute.18|safe }} >18</td>
+        <td {{ seatmap_attribute.15|safe }} >15</td>
+        <td {{ seatmap_attribute.6|safe }} >6</td>
+        <td {{ seatmap_attribute.3|safe }} >3</td>
+    </tr>
+    <tr><td class="empty"></td></tr>
+    <tr>
+        <td class="empty" rowspan="3"></td>
+        <td class="empty" rowspan="3"></td>
+        <td class="empty" rowspan="3"></td>
+        <td {{ seatmap_attribute.46|safe }} >46</td>
+        <td {{ seatmap_attribute.43|safe }} >43</td> 
+        <td class="empty" rowspan="3"></td>
+        <td {{ seatmap_attribute.34|safe }} >34</td>
+        <td {{ seatmap_attribute.31|safe }} >31</td> 
+        <td class="empty" rowspan="3"></td>
+        <td {{ seatmap_attribute.22|safe }} >22</td>
+        <td {{ seatmap_attribute.19|safe }} >19</td>
+        <td class="empty" rowspan="3"></td>
+        <td {{ seatmap_attribute.10|safe }} >10</td>
+        <td {{ seatmap_attribute.7|safe }} >7</td>
+    </tr>
+    <tr>
+        <td {{ seatmap_attribute.47|safe }} >47</td>
+        <td {{ seatmap_attribute.44|safe }} >44</td>
+        <td {{ seatmap_attribute.35|safe }} >35</td>
+        <td {{ seatmap_attribute.32|safe }} >32</td>
+        <td {{ seatmap_attribute.23|safe }} >23</td>
+        <td {{ seatmap_attribute.20|safe }} >20</td>
+        <td {{ seatmap_attribute.11|safe }} >11</td>
+        <td {{ seatmap_attribute.8|safe }} >8</td>
+    </tr>
+    <tr>
+        <td {{ seatmap_attribute.48|safe }} >48</td>
+        <td {{ seatmap_attribute.45|safe }} >45</td>
+        <td {{ seatmap_attribute.36|safe }} >36</td>
+        <td {{ seatmap_attribute.33|safe }} >33</td> 
+        <td {{ seatmap_attribute.24|safe }} >24</td>
+        <td {{ seatmap_attribute.21|safe }} >21</td>
+        <td {{ seatmap_attribute.12|safe }} >12</td>
+        <td {{ seatmap_attribute.9|safe }} >9</td>
+    </tr>
+    
+</table>
+<script>
+$(function() {
+getSeatMap('{{ type }}');
+setInterval(function(){getSeatMap('{{ type }}')}, 5000);
+
+var tippies = new Array(54)
+
+function getSeatMap(type){
+    
+    $.ajax({
+        url: '{% url "getseatmap" %}',
+        dataType: 'json',
+        }).done(function(data,textStatus,jqXHR) {
+        updateSeatMap(data, type);
+        }).fail(function(jqXHR, textStatus, errorThrown ) {
+
+        }).always(function(){
+        
+        });
+}
+
+function updateSeatMap(data, type){
+    $.each(data, function(index, seat){
+        seat_id = seat["seat_id"];
+        full_name = seat["full_name"];
+        full_class = seat["full_hr_class"];
+        student_id = seat["student_id"];
+        status = seat["status"];
+        internet = seat["internet"];
+        guest_user = seat["guest_user"];
+
+        updateTippy(status, seat_id, full_name, full_class, student_id, internet, guest_user, type);
+
+        $("#seat" + seat_id.toString()).removeAttr("class");
+
+        if(type == 'admin'){
+            var url = "{% url 'seat_details_empty' %}" + seat_id.toString();
+            $("#seat" + seat_id.toString()).click(function(){location.href=url});
+            $("#seat" + seat_id.toString()).addClass("pickseat");
+        }
+        
+        if(type == 'guest'){
+            if(guest_user){
+                var url = "{% url 'check_out_seat_empty' %}" + seat_id.toString();
+                $("#seat" + seat_id).addClass("bg-danger pickseat");
+                $("#seat" + seat_id.toString()).click(function(){location.href=url});
+            }
+        }else{
+            switch(seat["status"]){
+                case 0: 
+                    if(type == 'check_in'){
+                        var url = "{% url 'check_in_seat_empty' %}" + seat_id.toString();
+                        $("#seat" + seat_id.toString()).click(function(){location.href=url});
+                        $("#seat" + seat_id.toString()).addClass("bg-success pickseat");
+                    }else if(type == 'unavailable_seatmap'){
+                        var url = "{% url 'seat_details_empty' %}" + seat_id.toString() + "/unavailable";
+                        $("#seat" + seat_id.toString()).click(function(){location.href=url});
+                        $("#seat" + seat_id.toString()).addClass("bg-success pickseat");
+                    }else{
+                        $("#seat" + seat_id.toString()).addClass("bg-success");
+                    }
+                break;
+                case 1:
+                    if((type == 'admin' || type == 'display' || type == 'unavailable_seatmap') && seat["internet"] == false){
+                        $("#seat" + seat_id).addClass("bg-warning");
+                    }else{
+                        $("#seat" + seat_id).addClass("bg-danger taken");
+                    }
+                break;
+                case 2:
+                    $("#seat" + seat_id).addClass("bg-warning taken");
+                break;
+                case 9:
+                    $("#seat" + seat_id).addClass("bg-secondary unavailable");
+                    if(type == 'unavailable_seatmap'){
+                        var url = "{% url 'seat_details_empty' %}" + seat_id.toString() + "/vacant";
+                        $("#seat" + seat_id.toString()).click(function(){location.href=url});
+                        $("#seat" + seat_id.toString()).addClass("bg-secondary pickseat");
+                    }
+                break;
+            }
+        }
+    })
+}
+
+
+function updateTippy(current_status, seat_id, full_name, full_class, student_id, internet, guest_user, type){
+
+    switch(current_status){
+        case "0":
+        case "9":
+            if(tippies[seat_id - 1] != null)　tippies[seat_id - 1].destroy();
+            break;
+
+        case "1":
+        case "2":
+            if(tippies[seat_id - 1] != null){
+                tippies[seat_id - 1].setContent(getToolTipsContent(full_name, full_class, student_id, internet, guest_user, type));
+            }else{
+                tippies[seat_id - 1] = new tippy(document.querySelector("#seat" + seat_id.toString()), {
+                                content: getToolTipsContent(full_name, full_class, student_id, internet, guest_user),
+                                allowHTML: true,
+                                theme: 'light-border',
+                            });
+            }
+            break;
+    }
+}
+
+function getToolTipsContent(full_name, full_class, student_id, internet, guest_user, type){
+    if(internet == true)
+        internet_display = '有';
+    else
+        internet_display = '無';
+    
+    html =  '<span class="seatmap-tooltip text-center">' 
+
+    if(guest_user){
+        html += 'ゲスト・教職員'
+    }else{
+        html += full_name + '<br/>' + full_class;
+        if(type == 'admin') 
+            html += '<br/>' + student_id;                    
+    }
+    
+    html += '<br/>インターネット:' + internet_display + '</span>';
+    return html;
+}
+
+});
+</script>

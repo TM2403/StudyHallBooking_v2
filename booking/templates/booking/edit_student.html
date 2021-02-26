@@ -1,0 +1,57 @@
+{% extends 'booking/base.html' %}
+
+{% block title %}
+    {% if type == 'create' %}
+        新規登録
+    {% elif type == 'edit' %}
+        登録内容の変更
+    {% endif %}
+{% endblock %}  
+
+{% block head %}{% endblock %}
+
+{% block content %}
+<div class="card border-info">
+    <div class="card-header">
+        <h2 class="card-title text-info">
+        {% if type == 'create' %}
+        アカウント新規作成 / New Account
+        {% elif type == 'edit' %}
+        アカウント編集 / Edit Account
+        {% endif%}
+        </h2>
+    </div>
+    <div class="card-body">
+        <h4 class="text-center">アカウント情報を入力。<br/>Enter your account info.</h4>
+        <br/>
+        {% if type == 'create' %}
+        <form method="POST" class="form" name="createstudentform" action="{% url 'student_info' 'create' %}">
+        {% elif type == 'edit' %}
+        <form method="POST" class="form" name="createstudentform" action="{% url 'student_info' 'edit' %}">
+        {% endif%}
+        {% csrf_token %}
+        {% for field, errors in form.errors.items %}
+            {% for error in errors %}
+                <p class="text-center text-danger">{{ error }}</p>
+            {% endfor %}
+        {% endfor %}
+            <table class="table text-center">
+                <tr><td style="width: 50%">学籍番号<br/>Student ID</td><td style="width: 50%">{{ student_id }}</td></tr>
+                <tr><td>姓<br/>Last Name</td><td>{{ form.last_name }}</td></tr>
+                <tr><td>名<br/>First Name</td><td>{{ form.first_name }}</td></tr>
+                <tr><td>学年<br/>Homeroom grade</td><td>{{ form.hr_grade }}</td></tr>
+                <tr><td>クラス<br/>Homeroom class</td><td>{{ form.hr_class }}</td></tr>
+                <tr><td>出席番号<br/>Student Number</td><td>{{ form.student_num }}</td></tr>
+            </table>
+        </form>
+        <div class="buttons">
+        {% if type == 'create' %}
+            <button class="btn btn-secondary" onclick="location.href='{% url 'check_in' 1 %}'"  style="width: 20%; display: inline-block">戻る<br/>back</button>
+        {% elif type == 'edit' %}
+            <button class="btn btn-secondary" onclick="location.href='{% url 'check_in' 2 %}'"  style="width: 20%; display: inline-block">戻る<br/>back</button>
+        {% endif %}                    
+            <button class="btn btn-success" onclick="document.createstudentform.submit()" style="width: 25%; display: inline-block">次へ<br/>Continue</button>
+        </div>  
+    </div>
+</div>
+{% endblock %}

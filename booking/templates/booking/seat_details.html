@@ -1,0 +1,87 @@
+{% extends 'booking/base.html' %}
+
+{% block title %}メインページ{% endblock %}  
+
+{% block head %}{% endblock %}
+
+{% block content %}
+<div class="card border-info">
+    <div class="card-header">
+        <h2 class="card-title text-info">座席の詳細</h2>
+    </div>
+    <div class="card-body">
+
+    <table class="table table-hover text-center">
+        <tr><td style="width: 50%">座席番号</td><td style="width: 50%">{{ seat.seat_id }}番</td></tr>
+        
+        {% if seat.status == 0 %}
+            <tr><td>現在のステータス</td><td class="text-success">空席</td></tr>
+        {% elif seat.status == 1 %}
+            <tr><td>現在のステータス</td><td class="text-danger">使用中</td></tr>
+
+            {% if seat.guest_user %}
+                <tr><td style="width: 50%">利用者の氏名</td><td>ゲスト・教職員</td></tr>
+            {% else %}
+                <tr><td style="width: 50%">利用者の氏名</td><td>{{ seat.current_user.full_name }}</td></tr>
+                <tr><td>クラス</td><td>{{ seat.current_user.full_hr_class_and_num }}</td></tr>
+                <tr><td>学籍番号</td><td>{{ seat.current_user.student_id }}</td></tr>
+            {% endif %}
+
+            {% if seat.internet %}
+                <tr><td>インターネット</td><td class="text-success">有り</td></tr>
+            {% else %}
+                <tr><td>インターネット</td><td class="text-danger">無し</td></tr>
+            {% endif %}
+        {% elif seat.status == 9 %}
+            <tr><td>現在のステータス</td><td class="text-secondary">使用不可</td></tr>
+        {% endif %}   
+    </table>
+
+    <div class="small-buttons">
+        <button class="btn btn-secondary" style="width: 20%" onclick="location.href = '{% url 'index' %}'">戻る</button>
+    {% if seat.status == 1 %} 
+        {% if seat.internet %}
+            <button class="btn btn-info" style="width: 25%" onclick="location.href = '{% url 'change_internet_status' seat.seat_id %}'">インターネット無しにする</button>
+        {% else %}
+            <button class="btn btn-info" style="width: 25%" onclick="location.href = '{% url 'change_internet_status' seat.seat_id %}'">インターネット有りにする</button>
+        {% endif %}
+    {% endif %}
+    
+    {% if seat.status == 1 or seat.status == 9 %}
+        <button class="btn btn-success" style="width: 25%" onclick="location.href = '{% url 'vacant_seat' seat.seat_id %}'">空席にする</button>
+    {% else %}
+        <button class="btn btn-danger" style="width: 25%" onclick="location.href = '{% url 'unavailable_seat' seat.seat_id %}'">利用不可にする</button>
+    {% endif %}
+    </div>
+    </div>
+</div>
+
+<br/>
+
+<div class="card border-secondary">
+    <div class="card-header">
+        <h2 class="card-title text-secondary">利用履歴（過去20件）</h2>
+    </div>
+    <div class="card-body">
+        {% if logs %}
+        <table class="table table-striped text-center">
+            <thead class="thead-light">
+                <tr><th>学籍番号</th><th>利用者の氏名</th><th>クラス</th><th>入室時間</th><th>退室時間</th></tr>
+            </thead>
+            <tbody>
+            {% for log in logs %}
+                {% if log.guest_user %}
+                    <tr><td></td><td>教職員・ゲスト</td><td></td><td>{{ log.check_in_time }}</td><td>{% if log.check_out_time %}{{ log.check_out_time }}{% endif %}</td></tr>
+                {% else %}
+                    <tr><td>{{ log.user.student_id }}</td><td>{{ log.user.full_name }}</td><td>{{ log.user.full_hr_class_and_num }}</td><td>{{ log.check_in_time }}</td><td>{% if log.check_out_time %}{{ log.check_out_time }}{% endif %}</td></tr>
+                {% endif %}
+            {% endfor %}
+            </tbody>
+         </table>
+        {% else %}
+            <p>履歴が存在しません</p>
+        {% endif %}  
+        
+    </div>
+</div>
+{% endblock %}

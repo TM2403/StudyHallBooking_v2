@@ -1,0 +1,33 @@
+#seatMap{
+    border: 1px solid black;
+    margin: 0px auto;
+}
+
+#seatMap td{
+    width: 60px;
+    vertical-align: middle;
+    border: 1px solid black;
+    text-align: center;
+    cursor: default;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    font-size: 20px;
+}
+
+.pickseat{
+    cursor: pointer !important;
+}
+
+.empty{
+    border: none !important;
+    cursor: default !important;
+    background-color: transparent !important;
+}
+
+#seatMap tr{
+    height:50px;
+}
+
+.seatmap-tooltip{
+    text-align: center;
+}
