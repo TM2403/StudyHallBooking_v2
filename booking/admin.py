@@ -55,5 +55,7 @@ class LogAdmin(admin.ModelAdmin):
 admin.site.register(Student, StudentAdmin)
 admin.site.register(SystemUser, SystemUserAdmin)
 
-admin.site.register(Seat, SeatAdmin)
-admin.site.register(Log, LogAdmin)
+
+#For DEBUG
+#admin.site.register(Seat, SeatAdmin)
+#admin.site.register(Log, LogAdmin)
