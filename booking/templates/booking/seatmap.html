@@ -80,6 +80,13 @@
     
 </table>
 </div>
+<div id="hide">
+    <h1>
+        処理中...
+        <br/>
+        Loading...
+    </h1>
+</div>
 <script>
 $(function() {
 getSeatMap('{{ type }}');
@@ -125,14 +132,20 @@ function updateSeatMap(data, type){
             if(guest_user){
                 var url = "{% url 'check_out_seat_empty' %}" + seat_id.toString();
                 $("#seat" + seat_id).addClass("bg-danger pickseat");
-                $("#seat" + seat_id.toString()).click(function(){location.href=url});
+                $("#seat" + seat_id.toString()).click(function(){
+                    hideSeatMap(); 
+                    location.href=url;
+                });
             }
         }else{
             switch(seat["status"]){
                 case 0: 
                     if(type == 'check_in'){
                         var url = "{% url 'check_in_seat_empty' %}" + seat_id.toString();
-                        $("#seat" + seat_id.toString()).click(function(){location.href=url});
+                        $("#seat" + seat_id.toString()).click(function(){
+                            hideSeatMap(); 
+                            location.href = url;
+                        });
                         $("#seat" + seat_id.toString()).addClass("bg-success pickseat");
                     }else if(type == 'unavailable_seatmap'){
                         var url = "{% url 'seat_details_empty' %}" + seat_id.toString() + "/unavailable";
@@ -207,6 +220,10 @@ function getToolTipsContent(full_name, full_class, student_id, internet, guest_u
     
     html += '<br/>インターネット:' + internet_display + '</span>';
     return html;
+}
+
+function hideSeatMap(){
+    $('#hide').css('visibility', 'visible');
 }
 
 });
