@@ -80,6 +80,7 @@
     
 </table>
 </div>
+
 <div id="hide">
     <h1>
         処理中...
@@ -87,15 +88,17 @@
         Loading...
     </h1>
 </div>
+
 <script>
 $(function() {
-getSeatMap('{{ type }}');
-setInterval(function(){getSeatMap('{{ type }}')}, 5000);
+getSeatMap('{{ action_type }}');
+setInterval(function(){getSeatMap('{{ action_type }}')}, 5000);
 
 var tippies = new Array(54)
 
 function getSeatMap(type){
     
+    //座席表入手
     $.ajax({
         url: '{% url "getseatmap" %}',
         dataType: 'json',
@@ -109,6 +112,8 @@ function getSeatMap(type){
 }
 
 function updateSeatMap(data, type){
+    console.log(type)
+
     $.each(data, function(index, seat){
         seat_id = seat["seat_id"];
         full_name = seat["full_name"];
@@ -122,14 +127,19 @@ function updateSeatMap(data, type){
 
         $("#seat" + seat_id.toString()).removeAttr("class");
 
-        if(type == 'admin'){
+        //管理者ユーザーの座席表
+        if(type == 'admin_display'){
+            //使用中の座席の詳細
             var url = "{% url 'seat_details_empty' %}" + seat_id.toString();
             $("#seat" + seat_id.toString()).click(function(){location.href=url});
             $("#seat" + seat_id.toString()).addClass("pickseat");
         }
         
-        if(type == 'guest'){
+        
+        if(type == 'guest_check_out'){
+            //ゲストユーザー退室時の座席表
             if(guest_user){
+                //ゲストユーザーが座っている席だけ赤く点灯
                 var url = "{% url 'check_out_seat_empty' %}" + seat_id.toString();
                 $("#seat" + seat_id).addClass("bg-danger pickseat");
                 $("#seat" + seat_id.toString()).click(function(){
@@ -139,6 +149,7 @@ function updateSeatMap(data, type){
             }
         }else{
             switch(seat["status"]){
+                //空席の座席
                 case 0: 
                     if(type == 'check_in'){
                         var url = "{% url 'check_in_seat_empty' %}" + seat_id.toString();
@@ -155,16 +166,18 @@ function updateSeatMap(data, type){
                         $("#seat" + seat_id.toString()).addClass("bg-success");
                     }
                 break;
+
+                //使用中の座席
                 case 1:
-                    if((type == 'admin' || type == 'display' || type == 'unavailable_seatmap') && seat["internet"] == false){
+                    if((type == 'admin_display' || type == 'static_display' || type == 'unavailable_seatmap') && seat["internet"] == false){
                         $("#seat" + seat_id).addClass("bg-warning");
                     }else{
+                        //登録用ユーザーの表示
                         $("#seat" + seat_id).addClass("bg-danger taken");
                     }
                 break;
-                case 2:
-                    $("#seat" + seat_id).addClass("bg-warning taken");
-                break;
+                
+                //利用不可の座席
                 case 9:
                     $("#seat" + seat_id).addClass("bg-secondary unavailable");
                     if(type == 'unavailable_seatmap'){
@@ -178,17 +191,19 @@ function updateSeatMap(data, type){
     })
 }
 
-
+//座席の吹き出しの更新
 function updateTippy(current_status, seat_id, full_name, full_class, student_id, internet, guest_user, type){
-
+console.log(0)
     switch(current_status){
         case "0":
         case "9":
             if(tippies[seat_id - 1] != null)　tippies[seat_id - 1].destroy();
+            console.log(1)
             break;
 
+        //使用中の時のみ吹き出しを表示
         case "1":
-        case "2":
+            console.log(2)
             if(tippies[seat_id - 1] != null){
                 tippies[seat_id - 1].setContent(getToolTipsContent(full_name, full_class, student_id, internet, guest_user, type));
             }else{
@@ -202,6 +217,7 @@ function updateTippy(current_status, seat_id, full_name, full_class, student_id,
     }
 }
 
+//吹き出しの内容
 function getToolTipsContent(full_name, full_class, student_id, internet, guest_user, type){
     if(internet == true)
         internet_display = '有';
@@ -222,6 +238,7 @@ function getToolTipsContent(full_name, full_class, student_id, internet, guest_u
     return html;
 }
 
+//読み込み中の画面
 function hideSeatMap(){
     $('#hide').css('visibility', 'visible');
 }

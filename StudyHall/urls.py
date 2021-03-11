@@ -16,17 +16,16 @@ Including another URLconf
 from django.contrib import admin
 from django.contrib.auth import views
 from django.urls import include, path
-from booking.views import authviews
 from booking.forms import LoginForm
+from booking.views import admin_controls
 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('booking/', include('booking.urls')),
+    path('', include('booking.urls')),
     path('login/', views.LoginView.as_view(
             template_name="registration/login.html",
             authentication_form=LoginForm
             ), name='login'),
-    path('logout/', authviews.logout_view, name='logout'),
-    path('', authviews.landing, name='landing')
+    path('logout/', admin_controls.logout_view, name='logout'),
 ]

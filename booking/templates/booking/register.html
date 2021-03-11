@@ -1,7 +1,7 @@
 {% extends 'booking/base.html' %}
 
 {% block title %}
-    {% if type == 'check_in' %}
+    {% if action_type == 'check_in' %}
         入室
     {% else %}
         退室
@@ -14,14 +14,14 @@
 <div class="card border-info">
     <div class="card-header">
         <h2 class="card-title text-info">
-        {% if type == 'check_in' %}
+        {% if action_type == 'check_in' %}
         入室手続き / Check-in
         {% else %}
         退室手続き / Check-out
         {% endif%}
         </h2>
     </div>
-    {% if type == 'check_in' %}
+    {% if action_type == 'check_in' %}
         {% if step == 1 %}   
             <div class="card-body">
             <h4 class="text-center">図書カードをスキャンするか学籍番号を入力してください。<br/>Scan your library card or enter your student ID.</h4>
@@ -87,7 +87,7 @@
                 </div> 
             </div>
         {% endif %}
-    {% elif type == 'check_out' %}
+    {% elif action_type == 'check_out' %}
         <div class="card-body">
             <h4 class="text-center">図書カードをスキャンするか学籍番号を入力してください。<br/>Scan your library card or enter your student ID.</h4>
             <br/>
@@ -107,7 +107,7 @@
                 <button class="btn btn-danger" onclick="document.studentidform.submit()" style="width: 20%;">退室<br/>Check-out</button>
             </div>  
         </div>
-    {% else %}
+    {% elif action_type == 'guest_check_out' %}
         <div class="card-body">
             <h4 class="text-center">座っていた座席を選択してください。<br/>Pick the seat you were sitting.</h4>
                     {% with seatmap_attribute as seatmap_attribute %}

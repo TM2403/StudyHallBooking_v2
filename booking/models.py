@@ -1,11 +1,15 @@
+import re
+
 from django.utils import timezone
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils.translation import gettext_lazy as _
 
+#管理ユーザーモデル
 class SystemUser(AbstractUser):
     class Meta:
         verbose_name_plural = '管理ユーザー'
+
     REGISTER = 'register'
     ADMIN = 'admin'
     DISPLAY = 'display'
@@ -13,7 +17,7 @@ class SystemUser(AbstractUser):
     TYPE_OPTION = [
         (REGISTER, _('登録端末')),
         (ADMIN, _('管理者')),
-        (DISPLAY, _('表示端末 (iPadなど)')), 
+        (DISPLAY, _('表示端末 (iPadなど)')),
     ]
 
     type = models.CharField(        
@@ -22,12 +26,11 @@ class SystemUser(AbstractUser):
         choices = TYPE_OPTION,
     )
 
-#Students Class
+#生徒アカウントのモデル
 class Student(models.Model):
     class Meta:
         verbose_name_plural = '生徒アカウント'
 
-    #Homeroom Grade Options
     M1 = "M1"
     M2 = "M2"
     M3 = "M3"
@@ -57,45 +60,37 @@ class Student(models.Model):
     )
     hr_class = models.IntegerField(verbose_name='組', null=True, blank=True)
     student_num = models.IntegerField(verbose_name='出席番号', null=True, blank=True)
- 
-    USERNAME_FIELD = 'email'
+
     REQUIRED_FIELDS = ['student_id']
 
     def __str__(self):
         return self.full_hr_class() + " " + self.full_name()
-    
 
     def full_name(self):
-        """
-        Return string full name.
-        Grade: H1, Class: 6 -> "H1-6"
-        """
-        return self.last_name + self.first_name
+        check_last_name = re.fullmatch('^[a-zA-Z]+$', self.last_name)
+        check_first_name = re.fullmatch('^[a-zA-Z]+$', self.first_name)
+        
+        if check_first_name is None and check_last_name is None:
+            return self.last_name + self.first_name
+        else:
+            return self.first_name + " " + self.last_name
 
     def full_hr_class(self):
-        """
-        Return string grade class.
-        Grade: H1, Class: 6 -> "H1-6"
-        """
         return str(self.hr_grade) + "-" + str(self.hr_class)
 
     def full_hr_class_and_num(self):
-        """
-        Return string grade class and student number.
-        Grade: H1, Class: 6 Student #: 24-> "H1-6 #24"
-        """
         return self.full_hr_class() + " #" +  str(self.student_num)
 
-
+#座席のモデル
 class Seat(models.Model):
     AVAILABLE = 0
-    USED = 1
-    RESERVED = 2
+    TAKEN = 1    
+    RESERVED = 2   #試験導入　将来検討してもいいかも
     UNAVAILABLE = 9
 
     STATUS = [
         (AVAILABLE, _('空席')),
-        (USED, _('使用中')),
+        (TAKEN, _('使用中')),
         (RESERVED, _('予約')),
         (UNAVAILABLE, _('使用不可')),
     ]
@@ -114,6 +109,7 @@ class Seat(models.Model):
     guest_user = models.BooleanField(verbose_name='ゲスト', default=False)
 
 
+#入退室記録のモデル
 class Log(models.Model):
     seat_id = models.IntegerField(verbose_name='座席番号')
     user = models.ForeignKey("Student", 

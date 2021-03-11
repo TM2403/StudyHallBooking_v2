@@ -1,17 +1,6 @@
 {% extends 'booking/base.html' %}
 
 {% block head %}
-{% if type == 'register' %}
-<style>
-.unavailable{
-    cursor: not-allowed !important;
-}
-
-.taken{
-    cursor: default !important;
-}
-</style>
-{% endif %}
 {% endblock %}
 
 {% block title %}メインページ{% endblock %}  
@@ -23,22 +12,14 @@
         </div>
         <div class="card-body">
         <p class="legend">
-            {% if type == 'register' %}
-            <span class="text-success">緑</span>: 空席　<span class="text-danger">赤</span>: 使用中　<span class="text-secondary">グレー</span>: 使用不可
-            <br/>
-            <span class="text-success">Green</span>: Vacant　<span class="text-danger">Red</span>: Used　<span class="text-secondary">Grey</span>: Unavailable
-            {% else %}
             <span class="text-success">緑</span>: 空席　<span class="text-warning">黄</span>: 使用中（インターネット無し） <span class="text-danger">赤</span>: 使用中（インターネット有り）　<span class="text-secondary">グレー</span>: 使用不可
-            {% endif %}
             <br/>
             <br/>
-            <span class="text-center" style="display: block">使用不可にする座席、空席にする座席をクリックしてください。</span>
-            <p id="registermessage" class="text-success">{{ message }}</p>
-            
+            <span class="text-center" style="display: block">使用不可にする座席、空席にする座席をクリックしてください。</span>            
         </p>
 
                 {% with seatmap_attribute as seatmap_attribute %}
-                {% with type as type %}
+                {% with action_type as action_type %}
                     {% include "booking/seatmap.html" %}
                 {% endwith %} 
                 {% endwith %}
@@ -47,13 +28,5 @@
             <button class="btn btn-secondary" style="display: inline-block" onclick="location.href = '{% url 'index' %}'">戻る</button>
         </div>
     </div>
-    
-    <script>
-        $(function(){
-            setTimeout(function(){
-                $('#registermessage').fadeOut();
-            }, 3000);
-        });
-    </script>
     
 {% endblock %}

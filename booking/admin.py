@@ -3,17 +3,15 @@ from django.contrib import admin
 from django.contrib.auth.models import Group
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
- 
 from .models import SystemUser, Student, Seat, Log
- 
+
+#生徒アカウントの編集画面
 class StudentAdmin(admin.ModelAdmin):
     list_display = ('student_id', 'last_name', 'first_name')
     fieldsets = (
         (None, {'fields': ('student_id',)}),
         ('Personal info', {'fields': ('last_name', 'first_name', 'hr_grade', 'hr_class', 'student_num')}),
     )
-    # add_fieldsets is not a standard ModelAdmin attribute. UserAdmin
-    # overrides get_fieldsets to use this attribute when creating a user.
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
@@ -22,11 +20,13 @@ class StudentAdmin(admin.ModelAdmin):
     )
     search_fields = ('student_id', 'last_name', 'first_name',)
 
+#管理ユーザーアカウントの編集画面
 class SystemUserAdmin(UserAdmin):
     model = SystemUser
     fieldsets = UserAdmin.fieldsets + ((None, {'fields': ('type',)}),)
     list_display = ['username', 'type']
 
+#座席情報の編集画面（デバッグ専用）
 class SeatAdmin(admin.ModelAdmin):
     list_display = ('seat_id', 'current_user', 'status', 'internet', )
     fieldsets = [
@@ -39,6 +39,7 @@ class SeatAdmin(admin.ModelAdmin):
     ordering = (('seat_id', ))
     search_fields = ['current_user']
 
+#入退記録の編集画面（デバッグ専用）
 class LogAdmin(admin.ModelAdmin):
     list_display = ('seat_id', 'user', 'guest_user', 'check_in_time', 'check_out_time')
     fieldsets = [
@@ -52,10 +53,10 @@ class LogAdmin(admin.ModelAdmin):
     search_fields = ['user']
 
 
+#管理画面に追加
 admin.site.register(Student, StudentAdmin)
 admin.site.register(SystemUser, SystemUserAdmin)
 
-
-#For DEBUG
+#以下はデバッグ専用
 #admin.site.register(Seat, SeatAdmin)
 #admin.site.register(Log, LogAdmin)
